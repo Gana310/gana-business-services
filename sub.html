@@ -1,5 +1,267 @@
-<html>
-  <body>
-    Section 1
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        section {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+        }
+        
+        .section-title {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .case-study {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+        }
+        
+        /* Game Container Styles */
+        #game-container {
+            background: #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        #game-canvas {
+            background: #8ed6ff;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #2980b9;
+        }
+        
+        #start-button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        
+        #start-button:hover {
+            background: #c0392b;
+        }
+        
+        #score {
+            font-size: 24px;
+            color: white;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to My Portfolio</h1>
+        <p>Product Leader | AI Enthusiast | Problem Solver</p>
+    </header>
+    
+    <section id="about">
+        <h2 class="section-title">About Me</h2>
+        <p>Hello! I'm a passionate product leader with expertise in AI-driven solutions and user-centered design. With over 10 years of experience in the tech industry, I specialize in building products that solve real problems while delivering exceptional user experiences.</p>
+        <p>When I'm not working on product strategy, you can find me exploring the latest in AI technology, mentoring aspiring product managers, or spending quality time with my family.</p>
+    </section>
+    
+    <section id="case-studies">
+        <h2 class="section-title">Case Studies</h2>
+        
+        <div class="case-study">
+            <h3>AI-Powered Recommendation Engine</h3>
+            <p>Led the development of a machine learning system that increased user engagement by 42% and average order value by 28% for an e-commerce platform.</p>
+        </div>
+        
+        <div class="case-study">
+            <h3>Mobile App Redesign</h3>
+            <p>Directed a complete UX overhaul that reduced customer support tickets by 65% and improved app store rating from 3.2 to 4.7 stars.</p>
+        </div>
+        
+        <div class="case-study">
+            <h3>Enterprise SaaS Platform</h3>
+            <p>Built and launched a B2B SaaS product that achieved $5M ARR within 18 months of launch.</p>
+        </div>
+    </section>
+    
+    <section id="gamification">
+        <h2 class="section-title">Gamification</h2>
+        <p>I believe in making experiences engaging and fun. Here's a simple game I created to demonstrate how gamification can enhance user interaction:</p>
+        
+        <div id="game-container">
+            <h3>Flappy Product Manager</h3>
+            <p>Avoid the obstacles and try to get the highest score!</p>
+            <canvas id="game-canvas" width="400" height="500"></canvas>
+            <div id="score">Score: 0</div>
+            <button id="start-button">Start Game</button>
+        </div>
+    </section>
+
+    <script>
+        // Flappy Bird-style Game
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('start-button');
+        const scoreElement = document.getElementById('score');
+        
+        // Game variables
+        let gameRunning = false;
+        let score = 0;
+        let gravity = 0.5;
+        let bird = {
+            x: 50,
+            y: canvas.height / 2,
+            width: 30,
+            height: 30,
+            velocity: 0
+        };
+        
+        let pipes = [];
+        let pipeGap = 150;
+        let pipeWidth = 60;
+        let pipeFrequency = 1500; // milliseconds
+        let lastPipeTime = 0;
+        
+        // Event listeners
+        canvas.addEventListener('click', () => {
+            if (gameRunning) {
+                bird.velocity = -10;
+            }
+        });
+        
+        startButton.addEventListener('click', startGame);
+        
+        // Game functions
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            pipes = [];
+            lastPipeTime = 0;
+            scoreElement.textContent = `Score: ${score}`;
+            startButton.style.display = 'none';
+            animate();
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            startButton.style.display = 'block';
+            startButton.textContent = 'Play Again';
+        }
+        
+        function createPipe() {
+            const minHeight = 50;
+            const maxHeight = canvas.height - pipeGap - minHeight;
+            const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+            
+            pipes.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                passed: false
+            });
+        }
+        
+        function update() {
+            // Update bird
+            bird.velocity += gravity;
+            bird.y += bird.velocity;
+            
+            // Check for collisions with ground or ceiling
+            if (bird.y + bird.height > canvas.height || bird.y < 0) {
+                endGame();
+            }
+            
+            // Create new pipes
+            const currentTime = Date.now();
+            if (currentTime - lastPipeTime > pipeFrequency) {
+                createPipe();
+                lastPipeTime = currentTime;
+            }
+            
+            // Update pipes
+            for (let i = 0; i < pipes.length; i++) {
+                pipes[i].x -= 2;
+                
+                // Check for collisions with pipes
+                if (
+                    bird.x < pipes[i].x + pipeWidth &&
+                    bird.x + bird.width > pipes[i].x &&
+                    (bird.y < pipes[i].topHeight || bird.y + bird.height > pipes[i].topHeight + pipeGap)
+                ) {
+                    endGame();
+                }
+                
+                // Check if bird passed the pipe
+                if (!pipes[i].passed && bird.x > pipes[i].x + pipeWidth) {
+                    pipes[i].passed = true;
+                    score++;
+                    scoreElement.textContent = `Score: ${score}`;
+                }
+                
+                // Remove pipes that are off screen
+                if (pipes[i].x + pipeWidth < 0) {
+                    pipes.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw bird
+            ctx.fillStyle = '#f1c40f';
+            ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+            
+            // Draw pipes
+            ctx.fillStyle = '#2ecc71';
+            for (let pipe of pipes) {
+                // Top pipe
+                ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+                // Bottom pipe
+                ctx.fillRect(pipe.x, pipe.topHeight + pipeGap, pipeWidth, canvas.height - pipe.topHeight - pipeGap);
+            }
+        }
+        
+        function animate() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            requestAnimationFrame(animate);
+        }
+    </script>
+</body>
 </html>
